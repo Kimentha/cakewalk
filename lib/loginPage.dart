@@ -1,6 +1,7 @@
 import 'package:cakewalkweb/OwnerMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:cakewalkweb/ColorPalette.dart';
+import 'package:cakewalkweb/EmployeeMenu.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -177,7 +178,7 @@ class LoginPageState extends State<LoginPage> {
                                         onPressed: () {
                                           ///shows message
                                          // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> ForgotPasswordPage()));
-                                          //_showDialog('Opens forgot password page');
+                                          _showdialog(context, 'Please contact store owner');
                                           //GO TO FORGOT PASSWORD PAGE
                                         },
                                       )
@@ -210,13 +211,24 @@ class LoginPageState extends State<LoginPage> {
                                               if ((username.toLowerCase() == "admin" && password == "A123") ||
                                                   (username.toLowerCase() == "employee" && password == "E123")) {
                                                 // Password is correct, proceed to login
-                                                emp="A0032";
+                                                if (username.toLowerCase() == "admin" && password == "A123"){
+                                                  emp="A0032";
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>  OwnerMenu(emp: emp),
                                                   ),
-                                                );
+                                                );}
+                                                else{
+                                                  emp="E0052";
+                                                  Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                  builder: (context) =>  EmployeeMenu(emp: emp),
+                                                  ),
+                                                  );
+                                                  }
+
                                               } else {
                                                 // Incorrect password
                                                 showDialog(
@@ -311,4 +323,24 @@ class NavItem extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showdialog(BuildContext context, String dialogContent) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Custom Dialog Title'),
+        content: Text(dialogContent),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
 }

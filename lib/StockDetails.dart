@@ -16,7 +16,8 @@ class _StockPageStateState extends State<StockDetails> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TextEditingController productNameController = TextEditingController();
   TextEditingController productPriceController = TextEditingController();
-
+  TextEditingController productQuantityController = TextEditingController();
+  TextEditingController productNameC = TextEditingController();
   // Function to add a product to Firestore
   Future<void> addProduct() async {
     return showDialog(
@@ -35,6 +36,10 @@ class _StockPageStateState extends State<StockDetails> {
                 controller: productPriceController,
                 decoration: InputDecoration(labelText: 'Product Price'),
               ),
+              TextFormField(
+                controller: productQuantityController,
+                decoration: InputDecoration(labelText: 'Product Quantity'),
+              ),
             ],
           ),
           actions: <Widget>[
@@ -44,10 +49,12 @@ class _StockPageStateState extends State<StockDetails> {
                   await _firestore.collection('PRODUCT').add({
                     'Product_Name': productNameController.text,
                     'Product_Price': double.parse(productPriceController.text),
+                    'Product_Quantity': double.parse(productQuantityController.text), // Corrected field name
                   });
                   // Clear the text fields
                   productNameController.clear();
                   productPriceController.clear();
+                  productQuantityController.clear();
                   Navigator.of(context).pop();
                 } catch (e) {
                   print('Error adding product: $e');
@@ -67,9 +74,9 @@ class _StockPageStateState extends State<StockDetails> {
     );
   }
 
+
   // Function to update a product in Firestore
-  void updateProduct(String productId) async {
-    // Replace 'productId' with the actual product ID to update
+  void updateProduct() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -92,14 +99,25 @@ class _StockPageStateState extends State<StockDetails> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  await _firestore.collection('PRODUCT').doc(productId).update({
-                    'Product_Name': productNameController.text,
-                    'Product_Price': double.parse(productPriceController.text),
-                  });
-                  // Clear the text fields
-                  productNameController.clear();
-                  productPriceController.clear();
-                  Navigator.of(context).pop();
+                  String productName = productNameController.text;
+                  if (productName.isNotEmpty) {
+                    // Use the product name from the controller to update the specific product
+                    await _firestore.collection('PRODUCT').where('Product_Name', isEqualTo: productName).get().then((querySnapshot) {
+                      querySnapshot.docs.forEach((doc) {
+                        doc.reference.update({
+                          'Product_Name': productName,
+                          'Product_Price': double.parse(productPriceController.text),
+                        });
+                      });
+                    });
+
+                    // Clear the text fields
+                    productNameController.clear();
+                    productPriceController.clear();
+                    Navigator.of(context).pop();
+                  } else {
+                    // Show an error or inform the user that the product name is required.
+                  }
                 } catch (e) {
                   print('Error updating product: $e');
                 }
@@ -118,21 +136,39 @@ class _StockPageStateState extends State<StockDetails> {
     );
   }
 
+
   // Function to delete a product from Firestore
-  void deleteProduct(String productId) async {
-    // Replace 'productId' with the actual product ID to delete
+  void deleteProduct() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete Product'),
-          content: Text('Are you sure you want to delete this product?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextFormField(
+                controller: productNameC,
+                decoration: InputDecoration(labelText: 'Product Name you want to delete'),
+              ),
+            ],
+          ),
           actions: <Widget>[
             ElevatedButton(
               onPressed: () async {
                 try {
-                  await _firestore.collection('PRODUCT').doc(productId).delete();
-                  Navigator.of(context).pop();
+                  String productNameToDelete = productNameC.text;
+                  if (productNameToDelete.isNotEmpty) {
+                    // Use the product name from the controller to delete the specific product
+                    await _firestore.collection('PRODUCT').where('Product_Name', isEqualTo: productNameToDelete).get().then((querySnapshot) {
+                      querySnapshot.docs.forEach((doc) {
+                        doc.reference.delete();
+                      });
+                    });
+                    Navigator.of(context).pop();
+                  } else {
+                    // Show an error or inform the user that the product name is required.
+                  }
                 } catch (e) {
                   print('Error deleting product: $e');
                 }
@@ -150,6 +186,7 @@ class _StockPageStateState extends State<StockDetails> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +339,7 @@ class _StockPageStateState extends State<StockDetails> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        updateProduct('productId');
+                        updateProduct();
                       },
                       style: ElevatedButton.styleFrom(
                         fixedSize: const Size(450, 65),
@@ -333,7 +370,7 @@ class _StockPageStateState extends State<StockDetails> {
                     ),
                     child: ElevatedButton(
                       onPressed: () {
-                        deleteProduct('productId');
+                        deleteProduct();
                       },
                       style: ElevatedButton.styleFrom(
                         fixedSize: const Size(450, 65),

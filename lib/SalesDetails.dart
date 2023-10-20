@@ -110,37 +110,7 @@ class MenuPageState extends State<SalesDetails> {
                     ],
                   ),
                   SizedBox(height: 10),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          ColourPalette.gradient1,
-                          ColourPalette.gradient2,
-                        ],
-                        begin: Alignment.bottomLeft,
-                        end: Alignment.topRight,
-                      ),
-                      borderRadius: BorderRadius.circular(7),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(450, 65),
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                      ),
-                      child: const Text(
-                        'Add Sale',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 19,
-                          color: Colors.black, // Change the color to black
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  // Rest of your buttons and UI elements
+              // Rest of your buttons and UI elements
                 ],
               ),
             ),
